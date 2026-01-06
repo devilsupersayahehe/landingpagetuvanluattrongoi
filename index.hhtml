@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Công Ty Luật ACC - Dịch Vụ Tư Vấn Luật Trọn Gói</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel to compile JSX in browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                start: '#7a2828',
+                end: '#a73737',
+              }
+            },
+            fontFamily: {
+              serif: ['Roboto', 'sans-serif'],
+              sans: ['Roboto', 'sans-serif'],
+            },
+            animation: {
+              'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'shimmer': 'shimmer 1.5s infinite',
+              'horizontal-scroll': 'horizontalScroll 40s linear infinite',
+            },
+            keyframes: {
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              shimmer: {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(100%)' }
+              },
+              horizontalScroll: {
+                '0%': { transform: 'translateX(0)' },
+                '100%': { transform: 'translateX(-50%)' }
+              }
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Custom CSS -->
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        font-family: 'Roboto', sans-serif;
+      }
+      .brand-gradient {
+        background: linear-gradient(to right, #7a2828, #a73737);
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #a73737; 
+        border-radius: 5px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #7a2828; 
+      }
+      /* Pause animation on group hover */
+      .group:hover .animate-horizontal-scroll {
+        animation-play-state: paused;
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased">
+    <div id="root"></div>
+
+    <!-- Main Application Script -->
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICON SYSTEM ---
+        const Icon = ({ children, className }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className}
+            >
+                {children}
+            </svg>
+        );
+
+        const Icons = {
+            Check: (props) => <Icon {...props}><polyline points="20 6 9 17 4 12" /></Icon>,
+            Phone: (props) => <Icon {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></Icon>,
+            Calendar: (props) => <Icon {...props}><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></Icon>,
+            ArrowRight: (props) => <Icon {...props}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></Icon>,
+            ArrowLeft: (props) => <Icon {...props}><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></Icon>,
+            Gavel: (props) => <Icon {...props}><path d="m14 13-7.5 7.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L11 10" /><path d="m16 16 6-6" /><path d="m8 8 6-6" /><path d="m9 7 8 8" /><path d="m21 11-8-8" /></Icon>,
+            Building: (props) => <Icon {...props}><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01" /><path d="M16 6h.01" /><path d="M12 6h.01" /><path d="M12 10h.01" /><path d="M12 14h.01" /><path d="M16 10h.01" /><path d="M16 14h.01" /><path d="M8 10h.01" /><path d="M8 14h.01" /></Icon>,
+            Globe: (props) => <Icon {...props}><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></Icon>,
+            FileCheck: (props) => <Icon {...props}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><path d="m9 15 2 2 4-4" /></Icon>,
+            Users: (props) => <Icon {...props}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></Icon>,
+            Scale: (props) => <Icon {...props}><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /><path d="M7 21h10" /><path d="M12 3v18" /><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" /></Icon>,
+            ShieldCheck: (props) => <Icon {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /><path d="m9 12 2 2 4-4" /></Icon>,
+            MessageCircle: (props) => <Icon {...props}><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z" /></Icon>,
+            Clock: (props) => <Icon {...props}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></Icon>,
+            Mail: (props) => <Icon {...props}><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></Icon>,
+            HelpCircle: (props) => <Icon {...props}><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><path d="M12 17h.01" /></Icon>,
+            ChevronDown: (props) => <Icon {...props}><polyline points="6 9 12 15 18 9" /></Icon>,
+            ChevronUp: (props) => <Icon {...props}><polyline points="18 15 12 9 6 15" /></Icon>,
+            CheckCircle: (props) => <Icon {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></Icon>,
+            Zap: (props) => <Icon {...props}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></Icon>,
+        };
+
+        // --- DATA CONSTANTS ---
+        const COMPANY_INFO = {
+            name: "Công Ty Luật ACC",
+            hotline: "1900 3330",
+            mobile: "084.696.7979",
+            email: "info@accgroup.vn",
+            zalo: "https://zalo.me/2171133625094125529"
+        };
+
+        const HERO_TEXT = `Tư vấn Luật là yếu tố then chốt giúp doanh nghiệp và cá nhân đảm bảo quyền lợi pháp lý trong mọi hoạt động kinh doanh và đời sống. Tại ACC, chúng tôi cung cấp dịch vụ tư vấn luật chuyên nghiệp, toàn diện, từ việc soạn thảo hợp đồng, giải quyết tranh chấp, đến hỗ trợ thủ tục đăng ký kinh doanh và bảo vệ quyền sở hữu trí tuệ. Với đội ngũ luật sư giàu kinh nghiệm và hiểu biết sâu sắc về pháp luật Việt Nam, Công ty Luật ACC luôn đồng hành cùng khách hàng.`;
+        const INTRO_TEXT = `Công ty Luật ACC là một trong những đơn vị cung cấp dịch vụ pháp lý uy tín và chuyên nghiệp hàng đầu tại Việt Nam. Từ khi thành lập, ACC đã xác định sứ mệnh mang đến cho khách hàng những giải pháp pháp lý toàn diện, hiệu quả và đáng tin cậy.\n\nVới phương châm “Đồng hành pháp lý cùng bạn”, ACC không chỉ cung cấp tư vấn pháp luật đơn thuần mà còn trở thành đối tác pháp lý chiến lược. Công ty tự hào sở hữu đội ngũ luật sư được đào tạo bài bản tại các trường đại học danh tiếng trong và ngoài nước, cùng hệ thống văn phòng hiện đại trên cả nước.\n\nACC hoạt động dựa trên sự kết hợp hài hòa giữa công nghệ hiện đại, am hiểu sâu sắc pháp luật Việt Nam và việc cập nhật liên tục các thông lệ quốc tế. Chúng tôi không chỉ giải quyết vấn đề trước mắt mà còn hướng đến tối ưu hóa lợi ích lâu dài, hỗ trợ khách hàng đạt được mục tiêu kinh doanh và phát triển bền vững.`;
+        const SERVICES_INTRO = `Công ty Luật ACC cung cấp dịch vụ tư vấn pháp lý toàn diện, đáp ứng đa dạng nhu cầu của cả cá nhân và doanh nghiệp. Chúng tôi chuyên sâu trong các lĩnh vực trọng yếu như:`;
+        const SERVICES_CONCLUSION = `Với ACC, mọi vấn đề pháp lý đều được tiếp cận một cách toàn diện, hiệu quả và chiến lược, không chỉ giải quyết rủi ro trước mắt mà còn tối ưu hóa lợi ích lâu dài, giúp khách hàng vững bước trong môi trường kinh doanh và pháp luật ngày càng phức tạp.`;
+        const TEAM_INTRO_DESC = `Công ty Luật ACC tự hào sở hữu đội ngũ luật sư và chuyên gia pháp lý giàu kinh nghiệm, chuyên môn cao và tận tâm. Mỗi thành viên đều được đào tạo bài bản tại các trường đại học danh tiếng, có tư duy phân tích sắc bén và kinh nghiệm thực tiễn phong phú.\n\nĐội ngũ luật sư ACC không chỉ có kiến thức pháp lý vững vàng mà còn sở hữu khả năng đánh giá rủi ro và đề xuất giải pháp chiến lược. Chúng tôi cam kết bảo vệ tối đa quyền lợi khách hàng và mang đến các giải pháp pháp lý bền vững, hiệu quả.`;
+        const WHY_CHOOSE_US_TEXT = `Công ty Luật ACC là đối tác pháp lý tin cậy, mang đến giải pháp toàn diện và hiệu quả. Đội ngũ luật sư am hiểu sâu sắc pháp luật Việt Nam và thông lệ quốc tế luôn tư vấn chiến lược tối ưu quyền lợi cho khách hàng.\n\nChúng tôi cam kết sự chuyên nghiệp, minh bạch và tận tâm. Kết hợp nền tảng công nghệ hiện đại với tư duy pháp lý sáng tạo, ACC giải quyết mọi vấn đề một cách linh hoạt, kịp thời, đồng hành cùng sự phát triển bền vững của khách hàng.`;
+        const CLOSING_TEXT = `Tư vấn luật là công cụ thiết yếu giúp doanh nghiệp và cá nhân bảo vệ quyền lợi, phòng ngừa rủi ro pháp lý và đưa ra các quyết định đúng đắn. Việc sử dụng dịch vụ tư vấn luật chuyên nghiệp giúp giảm thiểu chi phí, tiết kiệm thời gian và tạo nền tảng pháp lý vững chắc cho mọi quyết định kinh doanh và hoạt động hàng ngày. Công ty Luật ACC luôn đồng hành cùng khách hàng với giải pháp pháp lý toàn diện, chính xác và đáng tin cậy.`;
+
+        const PROCESS_INTRO_TEXT = `Tại Công ty Luật ACC, chúng tôi xây dựng một quy trình tư vấn pháp lý chuyên nghiệp, minh bạch và hiệu quả, nhằm đảm bảo mọi nhu cầu của khách hàng đều được xử lý nhanh chóng và chính xác. Quy trình tư vấn của ACC được triển khai theo các bước cơ bản sau`;
+
+        const PROCESS_STEPS = [
+            { step: 1, title: "Tiếp nhận thông tin", items: ["Khách hàng cung cấp thông tin, tài liệu.", "ACC lắng nghe, phân tích nhu cầu."] },
+            { step: 2, title: "Phân tích pháp lý", items: ["Đánh giá tình huống theo luật hiện hành.", "Xác định rủi ro và cơ hội."] },
+            { step: 3, title: "Đề xuất giải pháp", items: ["Trình bày phương án khả thi.", "Tư vấn chiến lược dài hạn."] },
+            { step: 4, title: "Triển khai", items: ["Soạn thảo hồ sơ, đại diện làm việc.", "Cập nhật tiến trình liên tục."] },
+            { step: 5, title: "Hoàn thiện", items: ["Đánh giá hiệu quả.", "Cam kết đồng hành lâu dài."] }
+        ];
+
+        const LAWYER_LIST = [
+            { 
+                category: "LUẬT SƯ", 
+                title: "HỒ THỊ HỒNG CHUNG", 
+                desc: "Với 7 năm kinh nghiệm trong lĩnh vực đầu tư và dự án, Luật sư Hồng Chung chuyên thực hiện các dự án đầu tư, sáp nhập và mua lại (M&A). Bà đã hỗ trợ thành công nhiều doanh nghiệp trong việc lập kế hoạch và thực thi dự án, giúp tối ưu hóa quy trình pháp lý và giảm thiểu rủi ro.", 
+                tags: ["Đầu tư", "Dự án", "M&A"], 
+                img: "https://congtyluatacc.vn/wp-content/uploads/2025/11/z7271235355390_f42f8fd6ff429a1a9b6fc33cf34d0746.jpg" 
+            },
+            { 
+                category: "LUẬT SƯ", 
+                title: "VÕ DUY TIẾN", 
+                desc: "Với 8 năm kinh nghiệm, Luật sư Võ Duy Tiến chuyên xử lý các án hình sự, từ bảo vệ quyền lợi bị cáo đến tư vấn phòng ngừa rủi ro. Ông đã hỗ trợ thành công trong nhiều vụ việc phức tạp, tập trung vào phân tích chứng cứ và chiến lược bào chữa hiệu quả. Thế mạnh của ông là sự am hiểu sâu về thủ tục tố tụng, giúp thực thi công lý một cách nhân văn và chuyên nghiệp, bảo vệ tối đa quyền lợi khách hàng.", 
+                tags: ["Hình sự", "Tư vấn pháp luật"], 
+                img: "https://congtyluatacc.vn/wp-content/uploads/2025/12/z7312170712871_5556d40055d5aab14cc26c13769805d2.jpg" 
+            },
+            { 
+                category: "LUẬT SƯ", 
+                title: "NGUYỄN THỊ HOÀI THẮM", 
+                desc: "Với 7 năm kinh nghiệm, Luật sư Hoài Thắm chuyên thực hiện thủ tục soạn thảo và review hợp đồng, đồng thời hỗ trợ doanh nghiệp đảm bảo điều kiện kinh doanh theo quy định pháp luật. Thế mạnh của bà nằm ở sự tỉ mỉ và hiểu biết thực tiễn, biến mọi thỏa thuận thành công cụ hỗ trợ phát triển kinh doanh.", 
+                tags: ["Soạn thảo", "Review", "Doanh nghiệp"], 
+                img: "https://congtyluatacc.vn/wp-content/uploads/2025/11/BeautyPlus-image-extender.jpeg" 
+            },
+            { 
+                category: "LUẬT SƯ", 
+                title: "TRẦN THỊ HUẾ", 
+                desc: "Với 15 năm kinh nghiệm, Luật sư Trần Thị Huế chuyên thực hiện thủ tục dân sự và giải quyết tranh chấp về dân sự, kinh doanh thương mại. Bà đã tham gia xử lý hàng trăm vụ việc, từ tranh chấp hợp đồng đến quyền sở hữu, với khả năng thu thập chứng cứ và lập luận logic. Thế mạnh của bà là kinh nghiệm tranh tụng thực tế, giúp khách hàng đạt kết quả công bằng nhanh chóng, mang lại sự ổn định cho hoạt động kinh doanh và cá nhân.", 
+                tags: ["Dân sự", "Giải quyết tranh chấp", "Kinh doanh thương mại"], 
+                img: "https://congtyluatacc.vn/wp-content/uploads/2025/11/z7271236585450_8c34b9a79961e364948c8519559b0489-1.jpg" 
+            },
+        ];
+
+        const FAQ_LIST = [
+            { question: "Tư vấn có mất phí không?", answer: "Tùy dịch vụ, ACC có thể tư vấn sơ bộ miễn phí hoặc báo phí rõ ràng trước khi thực hiện." },
+            { question: "Có tư vấn online không?", answer: "Có, ACC hỗ trợ tư vấn qua điện thoại, Zalo, Email và trực tiếp tại văn phòng." },
+            { question: "Thời gian xử lý bao lâu?", answer: "Phụ thuộc vào mức độ phức tạp, ACC sẽ thông báo thời gian dự kiến cụ thể." },
+            { question: "Chi phí có đắt không?", answer: "Chi phí hợp lý, minh bạch và cạnh tranh, phù hợp với từng vụ việc." },
+            { question: "Bảo mật thông tin không?", answer: "Cam kết bảo mật tuyệt đối 100% thông tin khách hàng." }
+        ];
+
+        // --- COMPONENTS ---
+
+        const FadeIn = ({ children, delay = 0, className = "" }) => {
+            const [isVisible, setIsVisible] = useState(false);
+            const domRef = useRef(null);
+            useEffect(() => {
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => entry.isIntersecting && setIsVisible(true));
+                });
+                const el = domRef.current;
+                if (el) observer.observe(el);
+                return () => { if (el) observer.unobserve(el); };
+            }, []);
+            return (
+                <div ref={domRef} className={`${className} transition-all duration-1000 ease-out transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} style={{ transitionDelay: `${delay}ms` }}>
+                    {children}
+                </div>
+            );
+        };
+
+        const Accordion = ({ items }) => {
+            const [openIndex, setOpenIndex] = useState(0);
+            return (
+                <div className="space-y-4">
+                    {items.map((item, index) => (
+                        <div key={index} className={`border rounded-xl overflow-hidden transition-all duration-300 ${openIndex === index ? 'bg-white border-brand-start shadow-md' : 'bg-white border-gray-200'}`}>
+                            <button className="w-full flex justify-between items-center px-6 py-5 text-left focus:outline-none" onClick={() => setOpenIndex(openIndex === index ? null : index)}>
+                                <div className="flex items-center gap-3">
+                                    <Icons.HelpCircle className={`w-5 h-5 flex-shrink-0 ${openIndex === index ? 'text-brand-start' : 'text-gray-400'}`} />
+                                    <span className={`font-semibold text-lg ${openIndex === index ? 'text-brand-start' : 'text-gray-800'}`}>{item.question}</span>
+                                </div>
+                                {openIndex === index ? <Icons.ChevronUp className="w-5 h-5 text-brand-end" /> : <Icons.ChevronDown className="w-5 h-5 text-gray-500" />}
+                            </button>
+                            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                <div className="px-6 pb-6 pt-0 pl-14 text-gray-600 leading-relaxed border-t border-transparent">{item.answer}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        const LawyerCardHover = ({ lawyer }) => {
+            return (
+                <div className="relative w-full h-[350px] rounded-xl overflow-hidden group shadow-xl bg-gray-900 border border-gray-800">
+                    {/* Background Image */}
+                    <img 
+                        src={lawyer.img} 
+                        alt={lawyer.title} 
+                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    />
+                    
+                    {/* Overlay: Dark gradient at bottom */}
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none"></div>
+
+                    {/* Overlay: Full dark dim on hover */}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+                    {/* Content Container */}
+                    <div className="absolute bottom-0 w-full p-6 z-20 flex flex-col justify-end">
+                        {/* Header (Title) */}
+                        <div className="transform transition-transform duration-500 group-hover:-translate-y-2">
+                            <span className="text-red-400 text-xs font-bold uppercase tracking-widest bg-red-900/30 px-2 py-1 rounded mb-2 inline-block border border-red-500/30 backdrop-blur-sm">
+                                {lawyer.category}
+                            </span>
+                            <h3 className="text-white text-2xl font-bold font-serif leading-tight drop-shadow-md">
+                                {lawyer.title}
+                            </h3>
+                        </div>
+
+                        {/* Description */}
+                        <div className="max-h-0 opacity-0 overflow-hidden group-hover:max-h-[250px] group-hover:opacity-100 transition-all duration-500 ease-in-out">
+                            <div className="pt-3">
+                                <div className="w-12 h-0.5 bg-red-500 mb-3"></div>
+                                <p className="text-gray-200 text-sm leading-relaxed mb-3 drop-shadow-sm">
+                                    {lawyer.desc}
+                                </p>
+                                <div className="flex flex-wrap gap-2 pb-1">
+                                    {lawyer.tags.map((tag, i) => (
+                                        <span key={i} className="px-2 py-1 bg-white/20 text-white text-[10px] font-semibold rounded backdrop-blur-sm">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- MAIN APP ---
+        const App = () => {
+            const [sliderIndex, setSliderIndex] = useState(0);
+            const [isPaused, setIsPaused] = useState(false);
+
+            useEffect(() => {
+                if (isPaused) return;
+
+                const timer = setInterval(() => {
+                    setSliderIndex((prev) => (prev + 1) % LAWYER_LIST.length);
+                }, 4000); 
+
+                return () => clearInterval(timer);
+            }, [isPaused]);
+
+            const nextSlide = () => setSliderIndex((prev) => (prev + 1) % LAWYER_LIST.length);
+            const prevSlide = () => setSliderIndex((prev) => (prev - 1 + LAWYER_LIST.length) % LAWYER_LIST.length);
+
+            const SERVICES_LIST = [
+                { title: "Tố tụng & Tranh chấp", description: "Đại diện tại tòa án, trọng tài bảo vệ quyền lợi.", icon: <Icons.Gavel className="w-8 h-8 text-white" /> },
+                { title: "Pháp luật Doanh nghiệp", description: "Thành lập, M&A, quản trị nội bộ doanh nghiệp.", icon: <Icons.Building className="w-8 h-8 text-white" /> },
+                { title: "Đầu tư Quốc tế", description: "Tư vấn đầu tư nước ngoài, hợp đồng thương mại.", icon: <Icons.Globe className="w-8 h-8 text-white" /> },
+                { title: "Sở hữu trí tuệ", description: "Đăng ký nhãn hiệu, bản quyền, sáng chế.", icon: <Icons.FileCheck className="w-8 h-8 text-white" /> },
+                { title: "Đất đai & Hôn nhân", description: "Chuyển nhượng nhà đất, ly hôn, thừa kế.", icon: <Icons.Users className="w-8 h-8 text-white" /> },
+                { title: "Giấy phép & Visa", description: "Giấy phép con, visa, thẻ tạm trú, lao động.", icon: <Icons.Scale className="w-8 h-8 text-white" /> }
+            ];
+
+            const scrollToContact = () => document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' });
+            const shineEffect = "relative overflow-hidden group after:content-[''] after:absolute after:inset-0 after:-translate-x-full after:bg-gradient-to-r after:from-transparent after:via-white/30 after:to-transparent hover:after:animate-shimmer";
+
+            return (
+                <div className="min-h-screen flex flex-col font-sans overflow-x-hidden">
+                    {/* Hero */}
+                    <div className="relative min-h-[600px] md:h-[80vh] flex items-center overflow-hidden">
+                        <div className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=2072')", backgroundPosition: "center 40%" }}>
+                            <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-[#2c0b0b]/80 to-transparent"></div>
+                        </div>
+                        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 w-full text-white">
+                            <FadeIn>
+                                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-sm font-bold uppercase mb-8">
+                                    <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center"><Icons.Check className="w-3 h-3 text-white" /></div>
+                                    Đối tác pháp lý tin cậy
+                                </div>
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif mb-6 leading-tight">DỊCH VỤ <br/><span className="text-red-400">TƯ VẤN LUẬT TRỌN GÓI</span></h1>
+                                <div className="w-24 h-1.5 bg-red-500 rounded-full mb-8"></div>
+                                <p className="text-lg md:text-xl font-light mb-10 leading-relaxed text-gray-100 max-w-3xl">{HERO_TEXT}</p>
+                                <div className="flex flex-col sm:flex-row gap-5">
+                                    <a href={`tel:${COMPANY_INFO.hotline.replace(/\s/g, '')}`} className={`${shineEffect} bg-[#a73737] hover:bg-[#c44545] border-2 border-[#a73737] text-white px-8 py-3 rounded-lg font-bold text-lg flex items-center gap-3`}>
+                                        <Icons.Phone className="w-5 h-5" /><span>Hotline: {COMPANY_INFO.hotline}</span>
+                                    </a>
+                                    <button onClick={scrollToContact} className={`${shineEffect} bg-transparent border-2 border-white hover:bg-white hover:text-[#7a2828] text-white px-8 py-3 rounded-lg font-bold text-lg flex items-center gap-3`}>
+                                        <Icons.Calendar className="w-5 h-5" /><span>Đặt lịch ngay</span>
+                                    </button>
+                                </div>
+                            </FadeIn>
+                        </div>
+                    </div>
+
+                    {/* Intro */}
+                    <section className="py-10 md:py-14 max-w-7xl mx-auto px-4 md:px-8">
+                        <FadeIn>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                                <div>
+                                    <div className="flex items-center gap-3 mb-3"><div className="w-10 h-1 bg-brand-end rounded-full"></div><span className="text-brand font-bold uppercase text-sm">Về chúng tôi</span></div>
+                                    <h2 className="text-3xl md:text-4xl font-bold font-serif mb-6 text-gray-900">Giới thiệu về <span className="text-brand">ACC Group</span></h2>
+                                    <div className="prose text-gray-600 text-justify space-y-4 mb-8">{INTRO_TEXT.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}</div>
+                                    <a href="#services" onClick={(e) => { e.preventDefault(); document.getElementById('services')?.scrollIntoView({behavior: 'smooth'}); }} className={`${shineEffect} inline-flex items-center gap-2 text-white bg-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-brand-end transition-colors`}>
+                                        Tìm hiểu thêm <Icons.ArrowRight className="w-4 h-4" />
+                                    </a>
+                                </div>
+                                <div className="relative pl-6 pb-6">
+                                    <div className="absolute inset-0 bg-brand-start/10 rounded-2xl transform translate-x-4 translate-y-4 -z-10"></div>
+                                    <img src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&q=80&w=2070" alt="Office" className="rounded-2xl shadow-xl w-full h-auto object-cover aspect-[4/3]" />
+                                </div>
+                            </div>
+                        </FadeIn>
+                    </section>
+
+                    {/* Services */}
+                    <section id="services" className="bg-gray-50 py-10 md:py-14">
+                        <div className="max-w-7xl mx-auto px-4 md:px-8">
+                            <FadeIn>
+                                <div className="text-center mb-12">
+                                    <div className="inline-block px-8 py-3 rounded-full brand-gradient text-white shadow-lg mb-6"><h2 className="text-xl md:text-2xl font-bold font-serif uppercase">Lĩnh vực tư vấn chính</h2></div>
+                                    <p className="text-gray-600 max-w-3xl mx-auto mt-4">{SERVICES_INTRO}</p>
+                                </div>
+                            </FadeIn>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {SERVICES_LIST.map((service, index) => (
+                                    <FadeIn key={index} delay={index * 100}>
+                                        <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 border-t-4 border-transparent hover:border-brand-start h-full flex flex-col hover:-translate-y-2">
+                                            <div className="w-16 h-16 rounded-xl brand-gradient flex items-center justify-center mb-6 shadow-md">{service.icon}</div>
+                                            <h3 className="text-xl font-bold mb-3 text-gray-900">{service.title}</h3>
+                                            <p className="text-gray-600 leading-relaxed mb-4 text-sm flex-grow">{service.description}</p>
+                                        </div>
+                                    </FadeIn>
+                                ))}
+                            </div>
+                            <FadeIn>
+                                <div className="mt-12 text-center">
+                                    <a href={`tel:${COMPANY_INFO.hotline.replace(/\s/g, '')}`} className={`${shineEffect} inline-flex items-center gap-3 bg-brand-end text-white px-8 py-3 rounded-lg font-bold hover:bg-brand-start shadow-lg hover:-translate-y-1 transition-all`}>
+                                        <Icons.Phone className="w-4 h-4" /> Liên hệ ngay
+                                    </a>
+                                    <p className="text-gray-500 italic text-sm mt-6 max-w-4xl mx-auto">{SERVICES_CONCLUSION}</p>
+                                </div>
+                            </FadeIn>
+                        </div>
+                    </section>
+
+                    {/* Process Section (Horizontal Timeline Layout) */}
+                    <section className="py-8 md:py-12 bg-white relative overflow-hidden">
+                        <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
+                                
+                                {/* Left Column: Process Steps (Horizontal Railway/Timeline) */}
+                                <div className="order-2 lg:order-1 lg:col-span-7 overflow-hidden relative group h-[380px] flex items-center">
+                                    {/* Gradient Masks */}
+                                    <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent z-20 pointer-events-none"></div>
+                                    <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent z-20 pointer-events-none"></div>
+                                    
+                                    {/* Central Static Line (The Rail) */}
+                                    <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-0.5 bg-gray-200 w-[200%] z-0"></div>
+
+                                    <FadeIn className="w-full">
+                                        <div className="flex w-max animate-horizontal-scroll group-hover:paused h-full items-center">
+                                            {/* Double the array for seamless loop */}
+                                            {[...PROCESS_STEPS, ...PROCESS_STEPS].map((step, index) => {
+                                                const isEven = index % 2 === 0;
+                                                return (
+                                                    <div 
+                                                        key={`${step.step}-${index}`} 
+                                                        className={`flex-shrink-0 w-[280px] mx-6 relative h-[320px] flex flex-col ${isEven ? 'justify-start pb-4' : 'justify-end pt-4'}`}
+                                                    >
+                                                        {/* Dot on the central line */}
+                                                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-brand-end z-10 border-2 border-white shadow-sm"></div>
+
+                                                        {/* Connector Line */}
+                                                        <div className={`absolute left-1/2 -translate-x-1/2 w-0.5 bg-gray-200 z-0 ${isEven ? 'bottom-1/2 h-24' : 'top-1/2 h-24'}`}></div>
+
+                                                        {/* Card */}
+                                                        <div className="relative p-5 bg-gray-50 rounded-xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-brand-start/20 transition-all duration-300 group/card z-10">
+                                                            {/* Number Circle */}
+                                                            <div className={`absolute left-1/2 -translate-x-1/2 w-10 h-10 rounded-full brand-gradient flex items-center justify-center text-white font-bold text-sm shadow-md border-2 border-white ring-2 ring-gray-100 transition-transform ${isEven ? '-bottom-5' : '-top-5'}`}>
+                                                                {step.step}
+                                                            </div>
+                                                            
+                                                            {/* Content */}
+                                                            <div className={`${isEven ? 'mb-2' : 'mt-2'}`}>
+                                                                <h3 className="text-base font-bold text-gray-900 mb-2 text-center group-hover/card:text-brand-start transition-colors">{step.title}</h3>
+                                                                <ul className="space-y-1.5">
+                                                                    {step.items.map((item, i) => (
+                                                                        <li key={i} className="flex gap-2 text-xs text-gray-600 items-start">
+                                                                            <Icons.CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0 mt-0.5" />
+                                                                            <span className="leading-tight">{item}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </FadeIn>
+                                </div>
+
+                                {/* Right Column: Intro Text (Sticky) */}
+                                <div className="order-1 lg:order-2 lg:col-span-5 relative">
+                                    <div className="lg:sticky lg:top-32">
+                                        <FadeIn>
+                                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-start/10 text-brand-start text-xs font-bold uppercase tracking-wider mb-4">
+                                                <div className="w-2 h-2 rounded-full bg-brand-start animate-pulse"></div>
+                                                Quy trình chuẩn mực
+                                            </div>
+                                            <h2 className="text-3xl md:text-5xl font-bold font-serif mb-6 text-brand leading-tight">Quy Trình <br/>Tư Vấn</h2>
+                                            <div className="w-24 h-1.5 bg-brand-end rounded-full mb-8"></div>
+                                            <p className="text-gray-600 text-lg leading-relaxed mb-8 text-justify">
+                                                {PROCESS_INTRO_TEXT}
+                                            </p>
+                                            <a href={`tel:${COMPANY_INFO.hotline.replace(/\s/g, '')}`} className={`${shineEffect} inline-flex items-center gap-3 bg-gray-900 text-white px-8 py-3 rounded-lg font-bold hover:bg-brand-end shadow-xl transition-all w-full sm:w-auto justify-center`}>
+                                                <Icons.Phone className="w-5 h-5" /> Nhận tư vấn ngay
+                                            </a>
+                                        </FadeIn>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Team Section (Split Layout + Slider) */}
+                    <section className="bg-gray-900 py-10 md:py-16 text-white relative overflow-hidden">
+                        {/* Background Elements */}
+                        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[radial-gradient(circle_at_30%_50%,_rgba(167,55,55,0.4),_transparent_60%)]"></div>
+                        
+                        <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                                
+                                {/* Left Column: Intro Text (5 cols) */}
+                                <div className="lg:col-span-5">
+                                    <FadeIn>
+                                        <div className="inline-block px-4 py-1.5 rounded-full border border-red-500/30 bg-red-500/10 text-red-300 text-sm font-bold uppercase tracking-wider mb-4">
+                                            Chuyên gia của chúng tôi
+                                        </div>
+                                        <h2 className="text-3xl md:text-5xl font-bold font-serif mb-6 leading-tight">Đội ngũ luật sư <br/><span className="text-red-400">tận tâm & uy tín</span></h2>
+                                        <div className="w-20 h-1 bg-red-500 mb-8"></div>
+                                        <div className="text-gray-300 text-lg leading-relaxed space-y-4">
+                                            {TEAM_INTRO_DESC.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
+                                        </div>
+                                        
+                                        {/* Navigation Buttons + CTA for Desktop */}
+                                        <div className="flex flex-wrap items-center gap-6 mt-10">
+                                            <div className="flex gap-4">
+                                                <button onClick={prevSlide} className="w-12 h-12 rounded-full border border-gray-600 hover:border-red-500 hover:bg-red-500 flex items-center justify-center transition-all group">
+                                                    <Icons.ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                                                </button>
+                                                <button onClick={nextSlide} className="w-12 h-12 rounded-full border border-gray-600 hover:border-red-500 hover:bg-red-500 flex items-center justify-center transition-all group">
+                                                    <Icons.ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-white" />
+                                                </button>
+                                            </div>
+                                            <a href="#contact-section" className="flex items-center gap-2 px-6 py-3 bg-white text-[#7a2828] rounded-full font-bold hover:bg-gray-100 transition-colors shadow-lg">
+                                                <Icons.Zap className="w-4 h-4 fill-current" />
+                                                Nhận tư vấn miễn phí ngay
+                                            </a>
+                                        </div>
+                                    </FadeIn>
+                                </div>
+
+                                {/* Right Column: Card Slider (7 cols) */}
+                                <div className="lg:col-span-7 overflow-hidden relative">
+                                    <FadeIn delay={200}>
+                                        {/* Slider Window */}
+                                        <div 
+                                            className="overflow-hidden -mx-4 px-4 py-4"
+                                            onMouseEnter={() => setIsPaused(true)} // Pause on hover
+                                            onMouseLeave={() => setIsPaused(false)} // Resume on leave
+                                        > 
+                                            <div 
+                                                className="flex transition-transform duration-500 ease-in-out" 
+                                                style={{ transform: `translateX(-${sliderIndex * (100 / (window.innerWidth >= 1024 ? 2 : 1))}%)` }}
+                                            >
+                                                {LAWYER_LIST.map((lawyer, index) => (
+                                                    <div key={index} className="w-full lg:w-1/2 flex-shrink-0 px-3">
+                                                        <LawyerCardHover lawyer={lawyer} />
+                                                    </div>
+                                                ))}
+                                                {LAWYER_LIST.map((lawyer, index) => (
+                                                    <div key={`clone-${index}`} className="w-full lg:w-1/2 flex-shrink-0 px-3">
+                                                        <LawyerCardHover lawyer={lawyer} />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </FadeIn>
+                                </div>
+
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Why Choose Us */}
+                    <section className="py-10 md:py-14 max-w-7xl mx-auto px-4 md:px-8">
+                        <FadeIn>
+                            <div className="text-center mb-10">
+                                <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4 text-brand">Tại sao chọn ACC?</h2>
+                                <div className="w-16 h-1 bg-brand-end rounded-full mx-auto"></div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                                {[
+                                    { icon: <Icons.ShieldCheck className="w-8 h-8"/>, title: "Uy tín", desc: "Thương hiệu pháp lý hàng đầu.", color: "blue" },
+                                    { icon: <Icons.Users className="w-8 h-8"/>, title: "Tận tâm", desc: "Luôn đặt lợi ích khách hàng lên đầu.", color: "green" },
+                                    { icon: <Icons.Clock className="w-8 h-8"/>, title: "Nhanh chóng", desc: "Xử lý hồ sơ chuyên nghiệp, đúng hạn.", color: "orange" },
+                                ].map((item, i) => (
+                                    <div key={i} className="p-6 bg-white border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-center hover:-translate-y-1">
+                                        <div className={`w-16 h-16 mx-auto bg-${item.color}-50 text-${item.color}-600 rounded-full flex items-center justify-center mb-4`}>{item.icon}</div>
+                                        <h3 className="font-bold text-lg mb-2 text-gray-900">{item.title}</h3>
+                                        <p className="text-gray-600 text-sm">{item.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="bg-red-50 p-8 rounded-2xl border border-red-100 shadow-sm flex flex-col md:flex-row items-center gap-8">
+                                <div className="prose max-w-none text-gray-700 text-justify flex-1">{WHY_CHOOSE_US_TEXT.split('\n\n').map((p,i)=><p key={i} className="mb-2">{p}</p>)}</div>
+                                <a href={COMPANY_INFO.zalo} target="_blank" rel="noreferrer" className={`${shineEffect} inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors`}>
+                                    <Icons.MessageCircle className="w-5 h-5"/> Tư vấn miễn phí
+                                </a>
+                            </div>
+                        </FadeIn>
+                    </section>
+
+                    {/* FAQ */}
+                    <section className="bg-gray-100 py-10 md:py-14">
+                        <div className="max-w-5xl mx-auto px-4 md:px-8">
+                            <FadeIn>
+                                <div className="text-center mb-10">
+                                    <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4 text-brand">Câu hỏi thường gặp</h2>
+                                    <div className="w-16 h-1 bg-brand-end rounded-full mx-auto"></div>
+                                </div>
+                                <Accordion items={FAQ_LIST} />
+                            </FadeIn>
+                        </div>
+                    </section>
+
+                    {/* CTA */}
+                    <section id="contact-section" className="py-16 relative overflow-hidden text-center px-4">
+                        <div className="absolute inset-0 brand-gradient z-0"></div>
+                        <div className="max-w-4xl mx-auto relative z-10 text-white">
+                            <FadeIn>
+                                <h2 className="text-3xl md:text-5xl font-bold font-serif mb-6 drop-shadow-md">Cần tư vấn pháp lý ngay?</h2>
+                                <p className="text-lg opacity-90 mb-10 leading-relaxed max-w-2xl mx-auto font-light">{CLOSING_TEXT}</p>
+                                <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
+                                    <a href={`tel:${COMPANY_INFO.hotline.replace(/\s/g, '')}`} className={`${shineEffect} bg-white text-[#7a2828] px-10 py-4 rounded-full font-bold text-xl hover:bg-gray-100 shadow-xl flex items-center gap-3 transform hover:scale-105 transition-all`}>
+                                        <Icons.Phone className="w-6 h-6" /> Gọi {COMPANY_INFO.hotline}
+                                    </a>
+                                    <a href={COMPANY_INFO.zalo} target="_blank" rel="noreferrer" className={`${shineEffect} bg-blue-600 text-white border border-blue-400 px-10 py-4 rounded-full font-bold text-xl hover:bg-blue-700 shadow-xl flex items-center gap-3 transform hover:scale-105 transition-all`}>
+                                        <Icons.MessageCircle className="w-6 h-6" /> Chat Zalo
+                                    </a>
+                                </div>
+                            </FadeIn>
+                        </div>
+                    </section>
+                </div>
+            );
+        };
+
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>
